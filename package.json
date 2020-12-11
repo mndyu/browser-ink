@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack",
+    "lint": "xo"
   },
   "keywords": [],
   "author": "",
@@ -42,7 +43,8 @@
     "react-dom": "^16.6.3",
     "remark": "^13.0.0",
     "remark-parse": "^9.0.0",
-    "unified": "^9.2.0"
+    "unified": "^9.2.0",
+    "webextension-polyfill": "^0.7.0"
   },
   "xo": {
     "prettier": true,

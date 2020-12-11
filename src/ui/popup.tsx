@@ -1,20 +1,19 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-
 import {css} from '@linaria/core'
 
 import unified from 'unified'
 import markdown from 'remark-parse'
-
 import {Node, Parent} from 'unist'
+
+import * as browser from 'webextension-polyfill'
 
 import '../styles/popup.css'
 
-// Import browser = require("webextension-polyfill");
-
 const enum Tab {
   Export,
-  Import
+  Import,
+  Diff
 }
 
 const useExportTab = (): [string, number] => {
@@ -22,7 +21,8 @@ const useExportTab = (): [string, number] => {
   const [winCount, setWinCount] = React.useState(0)
 
   React.useEffect(() => {
-    chrome.windows.getAll({populate: true}, (windows) => {
+    const run = async () => {
+      const windows = await browser.windows.getAll({populate: true})
       const windowsCode = windows
         .map((window) => {
           const windowCode = `## Window ${window.id.toString()}`
@@ -36,7 +36,9 @@ const useExportTab = (): [string, number] => {
         .join('\n\n')
       setCode(windowsCode)
       setWinCount(windows.length)
-    })
+    }
+
+    void run()
   }, [])
 
   return [code, winCount]
@@ -68,7 +70,7 @@ const ImportTab: React.FC = () => {
         .map((link) => link.url)
     )
     tabsInWindows.forEach((tabs) => {
-      chrome.windows.create({url: tabs})
+      browser.windows.create({url: tabs})
     })
   }, [code])
 
@@ -91,9 +93,14 @@ const ImportTab: React.FC = () => {
   )
 }
 
+const DiffTab: React.FC = () => {
+  return <div />
+}
+
 const tabs = {
   [Tab.Export]: <ExportTab />,
-  [Tab.Import]: <ImportTab />
+  [Tab.Import]: <ImportTab />,
+  [Tab.Diff]: <DiffTab />
 }
 
 interface TabButtonProps {
@@ -114,16 +121,18 @@ const TabButton: React.FC<TabButtonProps> = ({children, onClick}) => {
 
 const Popup: React.FC = () => {
   const [tab, setTab] = React.useState(Tab.Export)
-
+  console.log(browser)
   return (
     <div className="popup-padded">
       <div
         className={css`
           display: flex;
+          margin-bottom: 15px;
         `}
       >
         <TabButton onClick={() => setTab(Tab.Export)}>export</TabButton>
         <TabButton onClick={() => setTab(Tab.Import)}>import</TabButton>
+        <TabButton onClick={() => setTab(Tab.Diff)}>diff</TabButton>
       </div>
 
       {tabs[tab]}
