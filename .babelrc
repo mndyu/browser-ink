@@ -1,0 +1,10 @@
+{
+  "presets": [
+    "@babel/preset-typescript",
+    "module:@linaria/babel"
+  ],
+  "plugins": [
+    "const-enum",
+  ]
+}
+
