@@ -1,4 +1,6 @@
 .DS_Store
 dist/js/*
 dist/styles/*
+dist/*.html
 node_modules/
+.linaria-cache

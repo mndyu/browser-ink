@@ -65,9 +65,11 @@ const ImportTab: React.FC = () => {
     const tree = unified().use(markdown).parse(code) as Parent
     const lists = tree.children.filter((v) => v.type === 'list') as Parent[]
     const tabsInWindows = lists.map((list) =>
-      list.children
-        .map((listItem) => listItem.children[0].children[0])
-        .map((link) => link.url)
+      list.children.map((listItem: Parent) => {
+        const paragraph = listItem.children[0] as Parent
+        const link = paragraph.children[0]
+        return link.url as string
+      })
     )
     tabsInWindows.forEach((tabs) => {
       browser.windows.create({url: tabs})

@@ -1,5 +1,7 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
 
 module.exports = {
   mode: 'development',
@@ -8,6 +10,7 @@ module.exports = {
   entry: {
     content: './src/app/content.ts',
     background: './src/app/background.ts',
+    options: './src/ui/options.ts',
     popup: './src/ui/popup.tsx'
   },
 
@@ -35,6 +38,10 @@ module.exports = {
         ]
       },
       {
+        test: /\.html$/,
+        use: ['html-loader']
+      },
+      {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       }
@@ -44,6 +51,23 @@ module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       filename: 'styles/popup.css'
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/options.html'),
+      filename: 'options.html',
+      chunks: ['options'],
+      inject: true,
+      minify: {}
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/popup.html'),
+      filename: 'popup.html',
+      chunks: ['popup'],
+      inject: true,
+      minify: {}
+    }),
+    new CompressionPlugin({
+      test: /\.js$|\.css$|\.html$/
     })
   ]
 }
