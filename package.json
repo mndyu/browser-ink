@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "web-ext run --source-dir dist",
     "build": "webpack",
     "lint": "xo",
     "test": ""
@@ -38,6 +39,7 @@
     "style-loader": "^0.23.1",
     "ts-loader": "^8.0.12",
     "typescript": "^4.1.3",
+    "web-ext": "^5.4.1",
     "webpack": "^5.10.1",
     "webpack-cli": "^4.2.0",
     "xo": "^0.36.1"
