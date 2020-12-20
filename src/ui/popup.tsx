@@ -10,99 +10,22 @@ import * as browser from 'webextension-polyfill'
 
 import '../styles/popup.css'
 
-const enum Tab {
+import WindowExport from './tabs/window_export'
+import WindowImport from './tabs/window_import'
+import WindowDiff from './tabs/window_diff'
+import BookmarkExport from './tabs/bookmark_export'
+
+const enum TabId {
   Export,
   Import,
-  Diff
+  Diff,
+  BookmarkExport
 }
 
-const useExportTab = (): [string, number] => {
-  const [code, setCode] = React.useState('')
-  const [winCount, setWinCount] = React.useState(0)
-
-  React.useEffect(() => {
-    const run = async () => {
-      const windows = await browser.windows.getAll({populate: true})
-      const windowsCode = windows
-        .map((window) => {
-          const windowCode = `## Window ${window.id.toString()}`
-          const tabCode = window.tabs
-            .map((tab) => {
-              return `- [${tab.title || ''}](${tab.url || ''})`
-            })
-            .join('\n')
-          return `${windowCode}\n${tabCode}`
-        })
-        .join('\n\n')
-      setCode(windowsCode)
-      setWinCount(windows.length)
-    }
-
-    void run()
-  }, [])
-
-  return [code, winCount]
-}
-
-const ExportTab = () => {
-  const [code, winCount] = useExportTab()
-  return (
-    <div>
-      {winCount} windows
-      <textarea
-        value={code}
-        // OnChange={(e) => setCode(e.target.value)}
-        rows={15}
-        cols={50}
-      />
-    </div>
-  )
-}
-
-const ImportTab: React.FC = () => {
-  const [code, setCode] = React.useState('')
-  const importWindows = React.useCallback(() => {
-    const tree = unified().use(markdown).parse(code) as Parent
-    const lists = tree.children.filter((v) => v.type === 'list') as Parent[]
-    const tabsInWindows = lists.map((list) =>
-      list.children.map((listItem: Parent) => {
-        const paragraph = listItem.children[0] as Parent
-        const link = paragraph.children[0]
-        return link.url as string
-      })
-    )
-    tabsInWindows.forEach((tabs) => {
-      browser.windows.create({url: tabs})
-    })
-  }, [code])
-
-  return (
-    <div>
-      <button
-        onClick={() => {
-          importWindows()
-        }}
-      >
-        open
-      </button>
-      <textarea
-        value={code}
-        rows={15}
-        cols={50}
-        onChange={(event) => setCode(event.target.value)}
-      />
-    </div>
-  )
-}
-
-const DiffTab: React.FC = () => {
-  return <div />
-}
-
-const tabs = {
-  [Tab.Export]: <ExportTab />,
-  [Tab.Import]: <ImportTab />,
-  [Tab.Diff]: <DiffTab />
+interface Tab {
+  id: TabId
+  title: string
+  element: JSX.Element
 }
 
 interface TabButtonProps {
@@ -122,8 +45,34 @@ const TabButton: React.FC<TabButtonProps> = ({children, onClick}) => {
 }
 
 const Popup: React.FC = () => {
-  const [tab, setTab] = React.useState(Tab.Export)
-  console.log(browser)
+  const [tab, setTab] = React.useState(TabId.Export)
+
+  const tabs = React.useMemo<Tab[]>(
+    () => [
+      {
+        id: TabId.Export,
+        title: 'export',
+        element: <WindowExport />
+      },
+      {
+        id: TabId.Import,
+        title: 'import',
+        element: <WindowImport />
+      },
+      {
+        id: TabId.Diff,
+        title: 'diff',
+        element: <WindowDiff />
+      },
+      {
+        id: TabId.BookmarkExport,
+        title: 'export bookmarks',
+        element: <BookmarkExport />
+      }
+    ],
+    []
+  )
+
   return (
     <div className="popup-padded">
       <div
@@ -132,12 +81,14 @@ const Popup: React.FC = () => {
           margin-bottom: 15px;
         `}
       >
-        <TabButton onClick={() => setTab(Tab.Export)}>export</TabButton>
-        <TabButton onClick={() => setTab(Tab.Import)}>import</TabButton>
-        <TabButton onClick={() => setTab(Tab.Diff)}>diff</TabButton>
+        {tabs.map((t) => (
+          <TabButton key={t.id} onClick={() => setTab(t.id)}>
+            {t.title}
+          </TabButton>
+        ))}
       </div>
 
-      {tabs[tab]}
+      {tabs.find((t) => t.id === tab)?.element}
     </div>
   )
 }
