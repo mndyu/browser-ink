@@ -35,10 +35,13 @@ const useWindowAsMarkdown = (windows): [string, number] => {
 
 const ExportTab = () => {
   const [allWindows, setAllWindows] = React.useState([])
+  const [currentWindow, setCurrentWindow] = React.useState({})
   React.useEffect(() => {
     const run = async () => {
-      const windows = await browser.windows.getAll({populate: true})
-      setAllWindows(windows)
+      const all = await browser.windows.getAll({populate: true})
+      const current = await browser.windows.getCurrent({populate: true})
+      setAllWindows(all)
+      setCurrentWindow(current)
     }
 
     void run()
@@ -47,6 +50,10 @@ const ExportTab = () => {
   const options = React.useMemo(
     () =>
       [
+        {
+          value: 'current-window',
+          label: 'Current Window'
+        },
         {
           value: 'all',
           label: 'All'
@@ -59,20 +66,23 @@ const ExportTab = () => {
       ),
     [allWindows]
   )
-  const [selectedWindow, setSelectedWindow] = React.useState('all')
+  const [selectedWindowOption, setSelectedWindowOption] = React.useState('all')
   const handleChange = React.useCallback((selectedOption) => {
-    setSelectedWindow(selectedOption)
+    setSelectedWindowOption(selectedOption)
   }, [])
 
   const windows = React.useMemo(() => {
-    if (selectedWindow === 'all') {
-      return allWindows
+    switch (selectedWindowOption) {
+      case 'all':
+        return allWindows
+      case 'current-window':
+        return [currentWindow]
+      default:
+        return allWindows.filter(
+          (window) => window.id.toString() === selectedWindowOption
+        )
     }
-
-    return allWindows.filter(
-      (window) => window.id.toString() === selectedWindow
-    )
-  }, [allWindows, selectedWindow])
+  }, [allWindows, currentWindow, selectedWindowOption])
   const [code, winCount] = useWindowAsMarkdown(windows)
 
   return (
@@ -80,7 +90,7 @@ const ExportTab = () => {
       <div>
         {winCount} windows
         <Select
-          value={selectedWindow}
+          value={selectedWindowOption}
           options={options}
           onChange={handleChange}
         />

@@ -14,12 +14,16 @@ import WindowExport from './tabs/window_export'
 import WindowImport from './tabs/window_import'
 import WindowDiff from './tabs/window_diff'
 import BookmarkExport from './tabs/bookmark_export'
+import Clipboard from './tabs/clipboard'
+import Random from './tabs/random'
 
 const enum TabId {
   Export,
   Import,
   Diff,
-  BookmarkExport
+  BookmarkExport,
+  Clipboard,
+  Random
 }
 
 interface Tab {
@@ -68,6 +72,16 @@ const Popup: React.FC = () => {
         id: TabId.BookmarkExport,
         title: 'export bookmarks',
         element: <BookmarkExport />
+      },
+      {
+        id: TabId.Clipboard,
+        title: 'clipboard',
+        element: <Clipboard />
+      },
+      {
+        id: TabId.Random,
+        title: 'random',
+        element: <Random />
       }
     ],
     []
@@ -96,3 +110,7 @@ const Popup: React.FC = () => {
 // --------------
 
 ReactDOM.render(<Popup />, document.querySelector('#root'))
+
+setTimeout(() => {
+  browser.runtime.sendMessage({greeting: 'GetURL'})
+}, 3000)

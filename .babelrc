@@ -4,7 +4,7 @@
     "module:@linaria/babel"
   ],
   "plugins": [
-    "const-enum",
+    "const-enum"
   ]
 }
 

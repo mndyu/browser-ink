@@ -8,8 +8,8 @@ const Select = ({value, options, onChange}) => {
         onChange(e.target.value)
       }}
     >
-      {options.map((v) => (
-        <option value={v.value} selected={value === v.value}>
+      {options.map((v, i) => (
+        <option key={i} value={v.value}>
           {v.label}
         </option>
       ))}

@@ -10,7 +10,7 @@
       "128": "icons/icon128.png"
     },
     "browser_action": {
-      "default_title": "TSRWPCX",
+      "default_title": "Tab manager",
       "default_popup": "popup.html"
     },
     "default_locale": "en",
@@ -22,7 +22,9 @@
     },
     "permissions": [
       "https://*/*",
-      "tabs"
+      "tabs",
+      "clipboardRead",
+      "clipboardWrite"
     ],
     "content_security_policy": "default-src 'self';",
     "content_scripts": [
